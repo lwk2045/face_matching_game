@@ -37,6 +37,14 @@ const sounds = {
     complete: new Audio('sounds/morse_code.mp3')
 };
 
+// 배경음악
+const backgroundMusic = new Audio('sounds/rally_x.mp3');
+backgroundMusic.loop = true;  // 반복 재생 설정
+let isMusicPlaying = false;  // 음악 재생 상태 추적
+
+// 모스코드 소리 설정
+sounds.complete.loop = true;  // 모스코드 소리 반복 설정
+
 // 게임 상태 변수
 let cards = [];
 let flippedCards = [];
@@ -51,6 +59,20 @@ let timeLeft = 300; // 5분 = 300초
 let timerInterval = null;
 let morseSound = null; // 모스코드 소리 객체 추가
 let currentUserName = '';
+
+// 초기 가상 순위 데이터
+const initialRankings = [
+    { name: "Master", score: 2800 },
+    { name: "Pro", score: 2500 },
+    { name: "Expert", score: 2200 },
+    { name: "Ace", score: 2000 },
+    { name: "Star", score: 1800 },
+    { name: "Hero", score: 1600 },
+    { name: "Champ", score: 1400 },
+    { name: "Rookie", score: 1200 },
+    { name: "Newbie", score: 1000 },
+    { name: "Beginner", score: 800 }
+];
 
 // DOM 요소
 const userForm = document.getElementById('user-form');
@@ -125,15 +147,40 @@ function startTimer() {
 
 // 순위 데이터 로드
 function loadRankings() {
-    const rankings = JSON.parse(localStorage.getItem('rankings')) || [];
+    let rankings = JSON.parse(localStorage.getItem('rankings')) || [];
+    
+    // 저장된 순위가 없으면 초기 가상 순위 데이터 사용
+    if (rankings.length === 0) {
+        rankings = initialRankings;
+        localStorage.setItem('rankings', JSON.stringify(rankings));
+    }
+    
     updateRankingDisplay(rankings);
 }
 
 // 순위 데이터 저장
 function saveRanking(name, score) {
-    let rankings = JSON.parse(localStorage.getItem('rankings')) || [];
-    rankings.push({ name, score });
-    rankings.sort((a, b) => b.score - a.score);
+    let rankings = JSON.parse(localStorage.getItem('rankings')) || initialRankings;
+    const timeUsed = 300 - timeLeft; // 사용한 시간 계산 (초 단위)
+    const minutes = Math.floor(timeUsed / 60);
+    const seconds = timeUsed % 60;
+    const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    rankings.push({ 
+        name, 
+        score,
+        time: timeString,
+        timeInSeconds: timeUsed // 정렬을 위한 시간 정보
+    });
+    
+    // 점수가 같을 경우 시간이 빠른 순으로 정렬
+    rankings.sort((a, b) => {
+        if (b.score === a.score) {
+            return (a.timeInSeconds || Infinity) - (b.timeInSeconds || Infinity);
+        }
+        return b.score - a.score;
+    });
+    
     rankings = rankings.slice(0, 10); // 상위 10개만 유지
     localStorage.setItem('rankings', JSON.stringify(rankings));
     updateRankingDisplay(rankings);
@@ -149,9 +196,41 @@ function updateRankingDisplay(rankings) {
             <span class="ranking-rank">${index + 1}</span>
             <span class="ranking-name">${rank.name}</span>
             <span class="ranking-score">${rank.score}</span>
+            ${rank.time ? `<span class="ranking-time">${rank.time}</span>` : ''}
         `;
         rankingList.appendChild(item);
     });
+}
+
+// 배경음악 재생 함수
+function playBackgroundMusic() {
+    if (!isMusicPlaying) {
+        backgroundMusic.volume = 0.5; // 볼륨 조절
+        backgroundMusic.play()
+            .then(() => {
+                isMusicPlaying = true;
+                console.log('배경음악 재생 시작');
+            })
+            .catch(error => {
+                console.log('배경음악 재생 실패:', error);
+                // 사용자 상호작용 후 재시도
+                document.addEventListener('click', () => {
+                    if (!isMusicPlaying) {
+                        playBackgroundMusic();
+                    }
+                }, { once: true });
+            });
+    }
+}
+
+// 배경음악 중지 함수
+function stopBackgroundMusic() {
+    if (isMusicPlaying) {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+        isMusicPlaying = false;
+        console.log('배경음악 중지');
+    }
 }
 
 // 게임 시작 처리
@@ -164,11 +243,14 @@ function startGame() {
     currentUserName = name;
     userForm.style.display = 'none';
     gameContent.style.display = 'block';
+    stopBackgroundMusic();  // 배경음악 중지
+    sounds.complete.play();  // 모스코드 소리 시작
     initializeGame();
 }
 
 // 게임 초기화
 function initializeGame() {
+    stopBackgroundMusic();  // 배경음악 중지
     isFirstClick = true;
     morseSound = null;
     startTimer();
@@ -225,12 +307,8 @@ function initializeGame() {
 function flipCard(cardId) {
     if (isPaused) return;
     
-    // 첫 카드 클릭 시 모스코드 소리 재생
+    // 첫 카드 클릭 시 모스코드 소리 재생 부분 제거
     if (isFirstClick) {
-        morseSound = new Audio('sounds/morse_code.mp3');
-        morseSound.play().catch(error => {
-            console.log('모스코드 소리 재생 실패:', error);
-        });
         isFirstClick = false;
     }
     
@@ -272,6 +350,7 @@ function flipCard(cardId) {
             }
             
             if (matchedPairs === 28) {
+                clearInterval(timerInterval); // 타이머 중지
                 setTimeout(() => {
                     playSound('complete');
                     finalMoves.textContent = moves;
@@ -335,37 +414,29 @@ function togglePause() {
     // 일시정지 시 모든 소리 중지
     if (isPaused) {
         // 모스코드 소리 중지
-        if (morseSound) {
-            morseSound.pause();
-        }
+        sounds.complete.pause();
         // 다른 효과음들 중지
         Object.keys(sounds).forEach(key => {
-            sounds[key].pause();
-            sounds[key].currentTime = 0;
+            if (key !== 'complete') {
+                sounds[key].pause();
+                sounds[key].currentTime = 0;
+            }
         });
     } else {
-        // 재개 시 모스코드 소리가 재생 중이었다면 다시 재생
-        if (morseSound && !isFirstClick) {
-            morseSound.play().catch(error => {
-                console.log('모스코드 소리 재생 실패:', error);
-            });
-        }
+        // 재개 시 모스코드 소리 다시 재생
+        sounds.complete.play().catch(error => {
+            console.log('모스코드 소리 재생 실패:', error);
+        });
     }
 }
 
 // 게임 실패 처리
 function handleGameFailure() {
-    isPaused = true;
-    gameFailure.classList.add('show');
-    // 모스코드 소리만 계속 재생
-    playSound('complete');
-    // 다른 모든 효과음 중지
-    Object.keys(sounds).forEach(key => {
-        if (key !== 'complete') {
-            sounds[key].pause();
-            sounds[key].currentTime = 0;
-        }
-    });
+    clearInterval(timerInterval);
+    gameContent.style.display = 'none';
+    gameFailure.style.display = 'block';
+    sounds.complete.pause();  // 모스코드 소리 중지
+    stopBackgroundMusic();
 }
 
 // 이벤트 리스너
@@ -373,15 +444,23 @@ startGameButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', () => {
     userForm.style.display = 'block';
     gameContent.style.display = 'none';
+    playBackgroundMusic();  // 배경음악 재생
 });
+
 playAgainButton.addEventListener('click', () => {
-    userForm.style.display = 'block';
-    gameContent.style.display = 'none';
+    gameComplete.classList.remove('show');
+    gameContent.style.display = 'block';
+    sounds.complete.play();  // 모스코드 소리 시작
+    initializeGame();
 });
+
 tryAgainButton.addEventListener('click', () => {
-    userForm.style.display = 'block';
-    gameContent.style.display = 'none';
+    gameFailure.style.display = 'none';
+    gameContent.style.display = 'block';
+    sounds.complete.play();  // 모스코드 소리 다시 시작
+    initializeGame();
 });
+
 hintButton.addEventListener('click', useHint);
 pauseButton.addEventListener('click', togglePause);
 resumeButton.addEventListener('click', togglePause);
@@ -390,4 +469,17 @@ resumeButton.addEventListener('click', togglePause);
 loadRankings();
 
 // 게임 시작
-initializeGame(); 
+initializeGame();
+
+// 페이지 로드 시 배경음악 재생 시도
+window.addEventListener('load', () => {
+    // 배경음악 미리 로드
+    backgroundMusic.load();
+    // 즉시 자동 재생 시도
+    playBackgroundMusic();
+});
+
+// 페이지 언로드 시 배경음악 정리
+window.addEventListener('beforeunload', () => {
+    stopBackgroundMusic();
+}); 

@@ -24,8 +24,16 @@ body {
     box-shadow: 0 0 20px rgba(0,0,0,0.2);
     margin: 10px;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 20px;
+}
+
+.top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 .game-content {
@@ -38,11 +46,11 @@ body {
 }
 
 .user-form {
-    width: 100%;
+    flex: 1;
     padding: 20px;
     background-color: #f8f9fa;
     border-radius: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
 }
 
 .user-form h3 {
@@ -55,22 +63,35 @@ body {
     font-size: 1rem;
     border: 2px solid #2196F3;
     border-radius: 5px;
-    margin-right: 10px;
     width: 200px;
+    text-align: center;
 }
 
 .hall-of-fame {
     width: 250px;
-    background-color: #f8f9fa;
     padding: 15px;
     border-radius: 10px;
     text-align: left;
+    margin-top: 0;
 }
 
 .hall-of-fame h3 {
     color: #2196F3;
     margin-bottom: 15px;
     text-align: center;
+    font-size: 1.4rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    padding-left: 30px;
+}
+
+.hall-of-fame h3::before {
+    content: '👑';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.6rem;
 }
 
 .ranking-list {
@@ -81,8 +102,10 @@ body {
 .ranking-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 8px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid rgba(220, 20, 60, 0.2);
+    color: #333;
 }
 
 .ranking-item:last-child {
@@ -91,7 +114,7 @@ body {
 
 .ranking-rank {
     font-weight: bold;
-    color: #2196F3;
+    color: crimson;
     width: 30px;
 }
 
@@ -101,11 +124,21 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: #333;
 }
 
 .ranking-score {
     font-weight: bold;
-    color: #4CAF50;
+    color: crimson;
+    margin-right: 10px;
+}
+
+.ranking-time {
+    color: #2196F3;
+    font-weight: bold;
+    font-size: 0.9rem;
+    min-width: 45px;
+    text-align: right;
 }
 
 h1 {
@@ -400,54 +433,86 @@ button:disabled {
 }
 
 .game-failure {
-    display: none;
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    text-align: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
     z-index: 1000;
-}
-
-.game-failure.show {
-    display: block;
+    color: white;
+    text-align: center;
+    padding: 20px;
 }
 
 .game-failure h2 {
-    color: #f44336;
-    margin-bottom: 15px;
-    font-size: 2rem;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #ff4444;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .game-failure p {
-    margin-bottom: 20px;
-    color: #666;
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    color: #ffffff;
 }
 
 #try-again {
-    background-color: #f44336;
+    background-color: #ff4444;
+    color: white;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 #try-again:hover {
-    background-color: #d32f2f;
+    background-color: #ff0000;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
 }
 
 .start-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 15px;
+    margin-top: 20px;
 }
 
 .start-image {
-    width: 40px;
-    height: 40px;
-    border-radius: 5px;
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
     object-fit: cover;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+.start-image:hover {
+    transform: scale(1.1);
+}
+
+#start-game {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#start-game:hover {
+    background-color: #1976D2;
+    transform: scale(1.05);
 }
 
 @media (max-width: 768px) {

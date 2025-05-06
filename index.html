@@ -9,13 +9,21 @@
 <body>
     <div class="container">
         <h1>Face Matching Game</h1>
-        <div class="user-form" id="user-form">
-            <h3>게임 시작</h3>
-            <div class="start-container">
-                <img src="images/face12.jpg" alt="게임 이미지" class="start-image">
-                <input type="text" id="user-name" placeholder="이름을 입력하세요" maxlength="10">
-                <button id="start-game">게임 시작</button>
-                <img src="images/face27.jpg" alt="게임 이미지" class="start-image">
+        <div class="top-section">
+            <div class="hall-of-fame">
+                <h3>명예의 전당</h3>
+                <div class="ranking-list" id="ranking-list">
+                    <!-- 순위는 JavaScript로 동적 생성됩니다 -->
+                </div>
+            </div>
+            <div class="user-form" id="user-form">
+                <h3>게임 시작</h3>
+                <div class="start-container">
+                    <img src="images/face12.jpg" alt="게임 이미지" class="start-image">
+                    <input type="text" id="user-name" placeholder="이름을 입력하세요" maxlength="10">
+                    <button id="start-game">게임 시작</button>
+                    <img src="images/face27.jpg" alt="게임 이미지" class="start-image">
+                </div>
             </div>
         </div>
         <div class="game-content" id="game-content" style="display: none;">
@@ -53,12 +61,6 @@
             </div>
             <div class="game-container">
                 <div class="game-board" id="game-board"></div>
-            </div>
-        </div>
-        <div class="hall-of-fame">
-            <h3>명예의 전당</h3>
-            <div class="ranking-list" id="ranking-list">
-                <!-- 순위는 JavaScript로 동적 생성됩니다 -->
             </div>
         </div>
         <div class="game-complete" id="game-complete">
