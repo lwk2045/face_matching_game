@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Matching Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Face Matching Game</h1>
+        <div class="user-form" id="user-form">
+            <h3>게임 시작</h3>
+            <div class="start-container">
+                <img src="images/face12.jpg" alt="게임 이미지" class="start-image">
+                <input type="text" id="user-name" placeholder="이름을 입력하세요" maxlength="10">
+                <button id="start-game">게임 시작</button>
+                <img src="images/face27.jpg" alt="게임 이미지" class="start-image">
+            </div>
+        </div>
+        <div class="game-content" id="game-content" style="display: none;">
+            <div class="game-info">
+                <div class="stats">
+                    <div class="moves">Moves: <span id="moves-count">0</span></div>
+                    <div class="score">Score: <span id="score-count">0</span></div>
+                    <div class="timer">Time: <span id="time-count">5:00</span></div>
+                </div>
+                <div class="controls">
+                    <button id="hint" disabled>Hint (<span id="hint-count">0</span>)</button>
+                    <button id="pause">Pause</button>
+                    <button id="restart">New Game</button>
+                </div>
+            </div>
+            <div class="instructions">
+                <div class="instructions-content">
+                    <div class="instructions-image left">
+                        <img src="images/whoisshe.jpg" alt="게임 이미지">
+                    </div>
+                    <div class="instructions-text">
+                        <h3>게임 설명</h3>
+                        <ol>
+                            <li>게임 시작: 모스코드 시작</li>
+                            <li>매칭 성공: 박수 소리</li>
+                            <li>매칭 실패: 교회 종소리</li>
+                            <li>3회 성공시 힌트 1회 획득</li>
+                            <li>제한시간 5분</li>
+                        </ol>
+                    </div>
+                    <div class="instructions-image right">
+                        <img src="images/cute.jpg" alt="게임 이미지">
+                    </div>
+                </div>
+            </div>
+            <div class="game-container">
+                <div class="game-board" id="game-board"></div>
+            </div>
+        </div>
+        <div class="hall-of-fame">
+            <h3>명예의 전당</h3>
+            <div class="ranking-list" id="ranking-list">
+                <!-- 순위는 JavaScript로 동적 생성됩니다 -->
+            </div>
+        </div>
+        <div class="game-complete" id="game-complete">
+            <h2>Congratulations!</h2>
+            <p>You completed the game in <span id="final-moves">0</span> moves!</p>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button id="play-again">Play Again</button>
+        </div>
+        <div class="game-failure" id="game-failure">
+            <h2>OTL...failure..</h2>
+            <p>Time's up!</p>
+            <button id="try-again">Try Again</button>
+        </div>
+        <div class="pause-overlay" id="pause-overlay">
+            <div class="pause-content">
+                <h2>Game Paused</h2>
+                <button id="resume">Resume Game</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
